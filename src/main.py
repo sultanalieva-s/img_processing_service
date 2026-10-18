@@ -1,6 +1,7 @@
-def main():
-    print("Hello from img-processing-service!")
+from fastapi import FastAPI
 
-
-if __name__ == "__main__":
-    main()
+app = FastAPI(
+    title="image processing service",
+    version="0.1.0",
+    description="service that effectively handles images",
+)
