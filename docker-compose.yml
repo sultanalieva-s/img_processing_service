@@ -10,7 +10,7 @@ services:
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       UPLOAD_DIR: /data/uploads
     volumes:
-      - uploads:/data/uploads
+      - ./uploads:/data/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -33,7 +33,7 @@ services:
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       UPLOAD_DIR: /data/uploads
     volumes:
-      - uploads:/data/uploads
+      - ./uploads:/data/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -91,4 +91,3 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  uploads:
