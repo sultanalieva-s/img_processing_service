@@ -1,5 +1,5 @@
-   .venv
-   .git
-   .idea
-   __pycache__
-   .env
+.venv
+__pycache__
+*.pyc
+.git
+.uploads/
