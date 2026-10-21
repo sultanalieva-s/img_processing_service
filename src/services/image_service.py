@@ -1,9 +1,21 @@
 import uuid
+from dataclasses import dataclass
+from pathlib import Path
 
 from fastapi import UploadFile
 
+from src.db.models.image_models import Image
+from src.db.repositories.asynch.image_repository import ImageRepository
+
 from src.utils.image_validations import validate_image
 from src.storage.local_storage import LocalStorage
+
+
+@dataclass(frozen=True)
+class StoredFile:
+    path: Path
+    media_type: str
+    filename: str
 
 
 def _clean_filename(name: str | None) -> str:
@@ -16,14 +28,29 @@ def _clean_filename(name: str | None) -> str:
 class ImageService:
     """asynchronous image service. (uses async repository) """
 
-    def __init__(self, repo):
+    def __init__(self, repo: ImageRepository, storage: LocalStorage):
         self._repo = repo
+        self._storage = storage
 
-    async def get(self, image_id: str):
+    async def get(self, image_id: uuid.UUID)-> Image | None:
         return await self._repo.get(image_id)
 
-    async def get_all(self):
-        return await self._repo.get_all()
+    async def get_all(self, *, lim: int = 20, off: int = 0)-> tuple[list[Image], int]:
+        images = await self._repo.get_all(limit=lim, offset=off)
+        total = await self._repo.count()
+        return images, total
+
+    async def get_img_file(self, image_id: uuid.UUID) -> StoredFile | None:
+        image = await self._repo.get(image_id)
+        if image is None:
+            return None
+        return self._locate(image.storage_key, image.content_type, image.original_filename)
+
+    def _locate(self, key: str, media_type: str, filename: str) -> StoredFile | None:
+        path = self._storage.path(key)
+        if not path.is_file():      # row exists but the file is gone
+            return None
+        return StoredFile(path, media_type, filename)
 
 
 class ImageServiceSync:
