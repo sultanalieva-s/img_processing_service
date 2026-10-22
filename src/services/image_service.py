@@ -5,18 +5,21 @@ from pathlib import Path
 from fastapi import UploadFile
 
 from src.celery_tasks import process_image
-from src.db.models.image_models import Image
+from src.db.models.image_models import Image, ImageThumbnail
 from src.db.repositories.asynch.image_repository import ImageRepository
 
 from src.utils.image_validations import validate_image
 from src.storage.local_storage import LocalStorage
 
 
+THUMBNAIL_MEDIA_TYPES = {"webp": "image/webp", "jpeg": "image/jpeg", "png": "image/png"}
+
+
 @dataclass(frozen=True)
 class StoredFile:
     path: Path
     media_type: str
-    filename: str
+    filename: str | None = None
 
 
 def _clean_filename(name: str | None) -> str:
@@ -52,6 +55,19 @@ class ImageService:
         if not path.is_file():      # row exists but the file is gone
             return None
         return StoredFile(path, media_type, filename)
+
+    async def get_thumbnail_file(self, image_id: uuid.UUID, name: str) -> StoredFile | None:
+        thumb = await self._repo.get_thumbnail(image_id, name)
+        if thumb is None:
+            return None
+        path = self._storage.path(thumb.storage_key)
+        if not path.is_file():
+            return None
+        media_type = THUMBNAIL_MEDIA_TYPES.get(thumb.format, "application/octet-stream")
+        return StoredFile(path=path, media_type=media_type)
+
+    async def get_thumbnails(self, image_id: uuid.UUID) -> list[ImageThumbnail] | None:
+        return await self._repo.get_thumbnails(image_id)
 
 
 class ImageServiceSync:

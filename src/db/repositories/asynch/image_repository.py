@@ -4,7 +4,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.db.models.image_models import Image
+from src.db.models.image_models import Image, ImageThumbnail
 
 
 class ImageRepository:
@@ -31,3 +31,15 @@ class ImageRepository:
 
     async def count(self):
         return await self._session.scalar(select(func.count()).select_from(Image)) or 0
+
+    async def get_thumbnail(self, image_id: uuid.UUID, name: str) -> ImageThumbnail | None:
+        stmt = select(ImageThumbnail).where(
+            ImageThumbnail.image_id == image_id,
+            ImageThumbnail.name == name,
+        )
+        return await self._session.scalar(stmt)
+
+    async def get_thumbnails(self, image_id: uuid.UUID) -> list[ImageThumbnail] | None:
+        stmt = select(ImageThumbnail).where(ImageThumbnail.image_id == image_id)
+        result = await self._session.scalars(stmt)
+        return list(result.all())

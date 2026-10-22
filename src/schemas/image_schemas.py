@@ -31,3 +31,13 @@ class Page(BaseModel, Generic[T]):
     total: int
     limit: int
     offset: int
+
+class ThumbnailResponse(BaseModel):
+    """Metadata of one generated thumbnail, with the URL of its file."""
+
+    name: str  # "thumb_256"
+    format: str  # "webp"
+    width: int
+    height: int
+    size_bytes: int
+    url: str
