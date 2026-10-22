@@ -4,6 +4,7 @@ from pathlib import Path
 
 from fastapi import UploadFile
 
+from src.celery_tasks import process_image
 from src.db.models.image_models import Image
 from src.db.repositories.asynch.image_repository import ImageRepository
 
@@ -86,5 +87,6 @@ class ImageServiceSync:
             self._storage.delete_prefix(f"images/{image_id}")
             raise
 
-        # 4. todo: enqueue a celery task:
+        # enqueue a celery task:
+        process_image.delay(image_id)
         return str(image_id)

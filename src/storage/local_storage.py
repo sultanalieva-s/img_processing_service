@@ -1,6 +1,7 @@
 import os
 import shutil
 import tempfile
+from functools import lru_cache
 from pathlib import Path
 from typing import BinaryIO
 
@@ -49,3 +50,8 @@ class LocalStorage:
         if path == self._root:
             raise ValueError("Refusing to delete the storage root.")
         shutil.rmtree(path, ignore_errors=True)
+
+
+@lru_cache
+def get_storage() -> LocalStorage:
+    return LocalStorage("/data/uploads")
