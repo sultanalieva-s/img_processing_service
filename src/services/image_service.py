@@ -69,6 +69,16 @@ class ImageService:
     async def get_thumbnails(self, image_id: uuid.UUID) -> list[ImageThumbnail] | None:
         return await self._repo.get_thumbnails(image_id)
 
+    async def get_thumbnails_by_size(self, *, size: int, limit: int, offset: int):
+        name = self.thumbnail_name(size)
+        thumbs = await self._repo.get_thumbnails_by_name(name, limit=limit, offset=offset)
+        total = await self._repo.count_thumbnails(name)
+        return thumbs, total
+
+    @staticmethod
+    def thumbnail_name(size: int) -> str:
+        return f"thumb_{size}"
+
 
 class ImageServiceSync:
     """Image service that uses a sync repository."""

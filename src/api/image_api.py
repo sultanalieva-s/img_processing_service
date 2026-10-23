@@ -139,4 +139,3 @@ async def get_thumbnails(
         )
         for t in thumbs
     ]
-

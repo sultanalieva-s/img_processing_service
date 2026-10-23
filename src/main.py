@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from src.api.image_api import router as img_router
+from src.api.thumbnails_api import router as thumb_router
 
 app = FastAPI(
     title="image processing service",
@@ -9,3 +10,4 @@ app = FastAPI(
 )
 
 app.include_router(router=img_router, prefix="/images")
+app.include_router(router=thumb_router, prefix="/thumbnails")
