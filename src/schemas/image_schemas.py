@@ -41,12 +41,3 @@ class ThumbnailResponse(BaseModel):
     height: int
     size_bytes: int
     url: str
-
-class ThumbnailItem(BaseModel):
-    image_id: uuid.UUID
-    name: str  # "thumb_256"
-    format: str  # "webp"
-    width: int
-    height: int
-    size_bytes: int
-    url: str  # where to download the file
