@@ -43,3 +43,20 @@ class ImageRepository:
         stmt = select(ImageThumbnail).where(ImageThumbnail.image_id == image_id)
         result = await self._session.scalars(stmt)
         return list(result.all())
+
+    async def get_thumbnails_by_name(
+            self, name: str, *, limit: int, offset: int
+    ) -> list[ImageThumbnail]:
+        stmt = (
+            select(ImageThumbnail)
+            .join(Image, Image.id == ImageThumbnail.image_id)
+            .where(ImageThumbnail.name == name)
+            .order_by(Image.created_at.desc(), ImageThumbnail.id.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        return list((await self._session.scalars(stmt)).all())
+
+    async def count_thumbnails(self, name: str) -> int:
+        stmt = select(func.count()).select_from(ImageThumbnail).where(ImageThumbnail.name == name)
+        return await self._session.scalar(stmt) or 0
