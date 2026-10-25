@@ -76,7 +76,7 @@ Notes:
 ### Run
 
 ```bash
-docker compose up -d --build
+docker compose up --watch
 ```
 
 This builds the image and starts everything.
